@@ -18,6 +18,16 @@ export class CalificacionVendedor{
 
 }
 
+export class compras{
+
+    private id: number;
+    private Producto: Producto;
+    private cantidad: number;
+    private fecha: Date;
+    private compradorCalificado: boolean;
+    private vendedorCalificado: boolean;
+}
+
 export class Usuario{
 
     private id: number;
@@ -40,7 +50,9 @@ export class Producto{
 }
 
 export class Favorito{
-
+    
     private id: number;
+    private usuario: Usuario;
+    private producto: Producto;
 
 }
