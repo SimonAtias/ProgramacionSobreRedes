@@ -1,19 +1,14 @@
-
-
-const express = require('express')
-const app = express()
-const port = 3000
-
+var express = require('express');
+var app = express();
+var port = 3000;
 var mysql = require('mysql');
 var connection = mysql.createConnection({
-    host : 'localhost',
+    host: 'localhost',
     user: 'root',
-    password : '1234',
-    database :  'ecommerce'
-})
-
+    password: '1234',
+    database: 'ecommerce'
+});
 connection.connect();
-
 /*app.get('/procuctos', (req, res) => {
     
     connection.query( 'SELECT * FROM ecommerce.productos WHERE nombre like "%PS2%";', function (error, results, field){
@@ -22,20 +17,9 @@ connection.connect();
     });
 
 })*/
-
-app.get('/users/:userId/books/:bookId', function(req, res){
-
+app.get('/users/:userId/books/:bookId', function (req, res) {
     res.send(req.params);
-
-})
-
-app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`)
-})
-
-
-
-
-
-
-
+});
+app.listen(port, function () {
+    console.log("Example app listening at http://localhost:" + port);
+});
