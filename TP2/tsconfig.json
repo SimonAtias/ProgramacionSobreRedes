@@ -13,6 +13,7 @@
         "CalificacionVendedor.ts",
         "Compras.ts",
         "Favorito.ts",
-        "Producto.ts"
+        "Producto.ts",
+        "Usuario.ts"
     ]
 }
