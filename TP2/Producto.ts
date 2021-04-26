@@ -87,7 +87,6 @@ export class Producto{
 
     public async save(connection){
         let query = 'UPDATE productos SET id=' + this.getId() + ', vendedor=' + this.getVendedor() + ', nombre= "' + this.getNombre() + '", precio=' + this.getPrecio()  + ', stock=' + this.getStock() + ', usado=' + this.isUsado() + ' where id=' + this.getId() + ';'
-        console.log(query);
         await connection.query(query, function(error, results){
             if (error){
                 throw error;
