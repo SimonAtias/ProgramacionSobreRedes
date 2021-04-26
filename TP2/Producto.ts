@@ -99,11 +99,17 @@ export class Producto{
         if(Producto.query == ""){
             Producto.query = "SELECT * FROM productos WHERE 1"
         }
-        Producto.query = Producto.query.concat(' AND ' + comparaX + comparador + cant)
+        if(cant == null){
+            return this;
+        }
+        Producto.query = Producto.query.concat(' AND ' + comparaX+' ' + comparador+' ' + cant+' ')
         return this;
     }
 
     public static orderBy(ordenaX, ordena){
+        if(ordenaX == null){
+            return this;
+        }
         Producto.query = Producto.query.concat(' ORDER BY '+ ordenaX +' '+ ordena);
         return this;
     }
@@ -112,9 +118,9 @@ export class Producto{
         return new Promise(function (resolve, reject){
             connection.query(Producto.query, function (error, results){
                 if (error) reject (error);
-                let productos:Set<Producto> = new Set();
+                let productos:Array<Producto> = new Array();
                 results.forEach(element => {
-                    productos.add(new Producto(element.id, element.vendedor, element.nombre, element.precio, element.stock, element.usado));
+                    productos.push(new Producto(element.id, element.vendedor, element.nombre, element.precio, element.stock, element.usado));
                 });
                 Producto.query = "";
                 resolve(productos)

@@ -107,11 +107,17 @@ export class Compras{
         if(Compras.query == ""){
             Compras.query = "SELECT * FROM compras WHERE 1"
         }
-        Compras.query = Compras.query.concat(' AND ' + comparaX + comparador + cant)
+        if(cant == null){
+            return this;
+        }
+        Compras.query = Compras.query.concat(' AND ' + comparaX+' ' + comparador+' ' + cant+' ')
         return this;
     }
 
     public static orderBy(ordenaX, ordena){
+        if(ordenaX == null){
+            return this;
+        }
         Compras.query = Compras.query.concat(' ORDER BY '+ ordenaX +' '+ ordena);
         return this;
     }
@@ -120,9 +126,9 @@ export class Compras{
         return new Promise(function (resolve, reject){
             connection.query(Compras.query, function (error, results){
                 if (error) reject (error);
-                let compras:Set<Compras> = new Set();
+                let compras:Array<Compras> = new Array();
                 results.forEach(element => {
-                    compras.add(new Compras(element.id, element.id_usuario, element.id_producto, element.cantidad, element.fecha, element.comprador_calificado, element.vendedor_calificado));
+                    compras.push(new Compras(element.id, element.id_usuario, element.id_producto, element.cantidad, element.fecha, element.comprador_calificado, element.vendedor_calificado));
                 });
                 Compras.query = "";
                 resolve(compras)

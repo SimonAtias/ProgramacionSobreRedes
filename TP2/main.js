@@ -36,10 +36,14 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var Compras_1 = require("./Compras");
 var Producto_1 = require("./Producto");
 var express = require('express');
+var bodyParser = require("body-parser");
 var app = express();
 var port = 3000;
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 var mysql = require('mysql');
 var connection = mysql.createConnection({
     host: 'localhost',
@@ -48,22 +52,13 @@ var connection = mysql.createConnection({
     database: 'ecommerce'
 });
 app.get('/productos', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, _b;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
-            case 0:
-                /* let productos = await Producto.where('precio','<','1000').get(connection);
-                console.log(productos); */
-                /* let productoTest = new Producto(9,3,'Juego PS2 Resident Evil 4 Original',500,1,true);
-                productoTest.save(connection); */
-                _b = (_a = console).log;
-                return [4 /*yield*/, Producto_1.Producto.find(connection, 1)];
+    var r;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, Producto_1.Producto.where("nombre", "like", "'%" + req.query.busqueda + "%'").where("usado", "=", req.query.usado).orderBy(req.query.orden, "DESC").get(connection)];
             case 1:
-                /* let productos = await Producto.where('precio','<','1000').get(connection);
-                console.log(productos); */
-                /* let productoTest = new Producto(9,3,'Juego PS2 Resident Evil 4 Original',500,1,true);
-                productoTest.save(connection); */
-                _b.apply(_a, [_c.sent()]);
+                r = _a.sent();
+                res.json(r);
                 return [2 /*return*/];
         }
     });
@@ -76,7 +71,7 @@ app.get('/usuarios/:id_usuario/fav', function (req, res) {
     });
 });
 app.post('/usuarios/:id_usuario/fav', function (req, res) {
-    connection.query("insert into favoritos values (null, " + req.params.id_usuario + ", " + req.query.id_producto + ");", function (error, results, field) {
+    connection.query("insert into favoritos values (null, " + req.params.id_usuario + ", " + req.body.id_producto + ");", function (error, results, field) {
         if (error) {
             throw error;
         }
@@ -86,7 +81,7 @@ app.post('/usuarios/:id_usuario/fav', function (req, res) {
     });
 });
 app.delete('/usuarios/:id_usuario/fav', function (req, res) {
-    connection.query("DELETE FROM favoritos WHERE id_usuario = " + req.params.id_usuario + " AND id_producto = " + req.query.id_producto + ";", function (error, results, field) {
+    connection.query("DELETE FROM favoritos WHERE id_usuario = " + req.params.id_usuario + " AND id_producto = " + req.body.id_producto + ";", function (error, results, field) {
         if (error) {
             throw error;
         }
@@ -95,18 +90,19 @@ app.delete('/usuarios/:id_usuario/fav', function (req, res) {
         }
     });
 });
-app.get('/usuarios/:id_usuario/compras', function (req, res) {
-    connection.query("SELECT * FROM compras WHERE id_usuario = " + req.params.id_usuario + ";", function (error, results, field) {
-        if (error) {
-            throw error;
-        }
-        else {
-            return res.json(results);
+app.get('/usuarios/:id_usuario/compras', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var r;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, Compras_1.Compras.where('id_Usuario', '=', req.query.id_usuario).get(connection)];
+            case 1:
+                r = _a.sent();
+                return [2 /*return*/, res.json(r)];
         }
     });
-});
+}); });
 app.post('/usuarios/:id_usuario/compras', function (req, res) {
-    connection.query("Insert into compras values (null, " + req.params.id_usuario + ", " + req.query.id_producto + ", " + req.query.cantidad + ", NOW(), 0, 0);", function (error, results, field) {
+    connection.query("Insert into compras values (null, " + req.params.id_usuario + ", " + req.body.id_producto + ", " + req.body.cantidad + ", NOW(), 0, 0);", function (error, results, field) {
         if (error) {
             throw error;
         }
@@ -126,12 +122,19 @@ app.get('/usuarios/:id_usuario/calificaciones', function (req, res) {
     });
 });
 app.post('/usuarios/:id_usuario/calificaciones', function (req, res) {
-    var id_operacion = req.query.id_operacion;
+    var id_operacion = req.body.id_operacion;
+    var id_usuario = req.params.id_usuario;
+    var id_calificante = req.body.id_calificante;
+    var calificacion = req.body.calificacion;
+    console.log(id_operacion);
+    console.log(id_usuario);
+    console.log(id_calificante);
+    console.log(calificacion);
     connection.query('SELECT id_usuario AS id_comprador, vendedor FROM compras INNER JOIN productos ON id_producto=productos.id WHERE compras.id = ' + id_operacion + ';', function (error, resultsQuery1, fields) {
         if (error)
             throw error;
-        if (resultsQuery1[0].id_comprador == req.params.id_usuario) {
-            connection.query("Insert into calificaciones_compradores values (null, " + req.params.id_usuario + "," + resultsQuery1[0].vendedor + "," + req.query.calificacion + ", NOW());", function (error, results, field) {
+        if (resultsQuery1[0].id_comprador == id_calificante) {
+            connection.query("Insert into calificaciones_compradores values (null, " + id_calificante + "," + id_usuario + "," + calificacion + ", NOW());", function (error, results, field) {
                 if (error) {
                     throw error;
                 }
@@ -141,7 +144,7 @@ app.post('/usuarios/:id_usuario/calificaciones', function (req, res) {
             });
         }
         else {
-            connection.query("Insert into calificaciones_vendedores values (null, " + req.params.id_usuario + "," + resultsQuery1[0].id_comprador + "," + req.query.calificacion + ", NOW());", function (error, results, field) {
+            connection.query("Insert into calificaciones_vendedores values (null, " + id_calificante + "," + id_usuario + "," + calificacion + ", NOW());", function (error, results, field) {
                 if (error) {
                     throw error;
                 }
@@ -153,5 +156,5 @@ app.post('/usuarios/:id_usuario/calificaciones', function (req, res) {
     });
 });
 app.listen(port, function () {
-    console.log("Example app listening at http://localhost:" + port);
+    console.log("App listening at http://localhost:" + port);
 });

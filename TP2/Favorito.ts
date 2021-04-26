@@ -60,11 +60,17 @@ export class Favorito{
         if(Favorito.query == ""){
             Favorito.query = "SELECT * FROM favoritos WHERE 1"
         }
-        Favorito.query = Favorito.query.concat(' AND ' + comparaX + comparador + cant)
+        if(cant == null){
+            return this;
+        }
+        Favorito.query = Favorito.query.concat(' AND ' + comparaX+' ' + comparador+' ' + cant+' ')
         return this;
     }
 
     public static orderBy(ordenaX, ordena){
+        if(ordenaX == null){
+            return this;
+        }
         Favorito.query = Favorito.query.concat(' ORDER BY '+ ordenaX +' '+ ordena);
         return this;
     }
@@ -73,9 +79,9 @@ export class Favorito{
         return new Promise(function (resolve, reject){
             connection.query(Favorito.query, function (error, results){
                 if (error) reject (error);
-                let favoritos:Set<Favorito> = new Set();
+                let favoritos:Array<Favorito> = new Array();
                 results.forEach(element => {
-                    favoritos.add(new Favorito(element.id, element.id_usuario, element.id_producto));
+                    favoritos.push(new Favorito(element.id, element.id_usuario, element.id_producto));
                 });
                 Favorito.query = "";
                 resolve(favoritos) 

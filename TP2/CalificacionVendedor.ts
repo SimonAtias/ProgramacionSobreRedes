@@ -86,11 +86,17 @@ export class CalificacionVendedor{
         if(CalificacionVendedor.query == ""){
             CalificacionVendedor.query = "SELECT * FROM calificaciones_vendedores WHERE 1"
         }
-        CalificacionVendedor.query = CalificacionVendedor.query.concat(' AND ' + comparaX + comparador + cant)
+        if(cant == null){
+            return this;
+        }
+        CalificacionVendedor.query = CalificacionVendedor.query.concat(' AND ' + comparaX+' ' + comparador+' ' + cant+' ')
         return this;
     }
 
     public static orderBy(ordenaX, ordena){
+        if(ordenaX == null){
+            return this;
+        }
         CalificacionVendedor.query = CalificacionVendedor.query.concat(' ORDER BY '+ ordenaX +' '+ ordena);
         return this;
     }
@@ -99,9 +105,9 @@ export class CalificacionVendedor{
         return new Promise(function (resolve, reject){
             connection.query(CalificacionVendedor.query, function (error, results){
                 if (error) reject (error);
-                let calificaciones_vendedores:Set<CalificacionVendedor> = new Set();
+                let calificaciones_vendedores:Array<CalificacionVendedor> = new Array();
                 results.forEach(element => {
-                    calificaciones_vendedores.add(new CalificacionVendedor(element.id, element.id_vendedor, element.id_comprador, element.calificacion, element.fecha));
+                    calificaciones_vendedores.push(new CalificacionVendedor(element.id, element.id_vendedor, element.id_comprador, element.calificacion, element.fecha));
                 });
                 CalificacionVendedor.query = "";
                 resolve(calificaciones_vendedores) 

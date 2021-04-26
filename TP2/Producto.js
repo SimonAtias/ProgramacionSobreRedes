@@ -103,7 +103,6 @@ var Producto = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         query = 'UPDATE productos SET id=' + this.getId() + ', vendedor=' + this.getVendedor() + ', nombre= "' + this.getNombre() + '", precio=' + this.getPrecio() + ', stock=' + this.getStock() + ', usado=' + this.isUsado() + ' where id=' + this.getId() + ';';
-                        console.log(query);
                         return [4 /*yield*/, connection.query(query, function (error, results) {
                                 if (error) {
                                     throw error;
@@ -121,10 +120,16 @@ var Producto = /** @class */ (function () {
         if (Producto.query == "") {
             Producto.query = "SELECT * FROM productos WHERE 1";
         }
-        Producto.query = Producto.query.concat(' AND ' + comparaX + comparador + cant);
+        if (cant == null) {
+            return this;
+        }
+        Producto.query = Producto.query.concat(' AND ' + comparaX + ' ' + comparador + ' ' + cant + ' ');
         return this;
     };
     Producto.orderBy = function (ordenaX, ordena) {
+        if (ordenaX == null) {
+            return this;
+        }
         Producto.query = Producto.query.concat(' ORDER BY ' + ordenaX + ' ' + ordena);
         return this;
     };
@@ -135,9 +140,9 @@ var Producto = /** @class */ (function () {
                         connection.query(Producto.query, function (error, results) {
                             if (error)
                                 reject(error);
-                            var productos = new Set();
+                            var productos = new Array();
                             results.forEach(function (element) {
-                                productos.add(new Producto(element.id, element.vendedor, element.nombre, element.precio, element.stock, element.usado));
+                                productos.push(new Producto(element.id, element.vendedor, element.nombre, element.precio, element.stock, element.usado));
                             });
                             Producto.query = "";
                             resolve(productos);

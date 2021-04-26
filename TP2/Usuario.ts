@@ -86,11 +86,17 @@ export class Usuario{
         if(Usuario.query == ""){
             Usuario.query = "SELECT * FROM usuarios WHERE 1"
         }
-        Usuario.query = Usuario.query.concat(' AND ' + comparaX + comparador + cant)
+        if(cant == null){
+            return this;
+        }
+        Usuario.query = Usuario.query.concat(' AND ' + comparaX+' ' + comparador+' ' + cant+' ')
         return this;
     }
 
     public static orderBy(ordenaX, ordena){
+        if(ordenaX == null){
+            return this;
+        }
         Usuario.query = Usuario.query.concat(' ORDER BY '+ ordenaX +' '+ ordena);
         return this;
     }
@@ -99,9 +105,9 @@ export class Usuario{
         return new Promise(function (resolve, reject){
             connection.query(Usuario.query, function (error, results){
                 if (error) reject (error);
-                let usuarios:Set<Usuario> = new Set();
+                let usuarios:Array<Usuario> = new Array();
                 results.forEach(element => {
-                    usuarios.add(new Usuario(element.id, element.username, element.saldo, element.calificacion_vendedor, element.calificacion_comprador));
+                    usuarios.push(new Usuario(element.id, element.username, element.saldo, element.calificacion_vendedor, element.calificacion_comprador));
                 });
                 Usuario.query = "";
                 resolve(usuarios) 
