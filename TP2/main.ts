@@ -1,3 +1,5 @@
+import { Producto } from "./Producto";
+
 const express = require('express');
 const app = express();
 const port = 3000;
@@ -10,26 +12,15 @@ var connection = mysql.createConnection({
     database :  'ecommerce'
 });
 
-app.get('/productos', (req, res) => {
-  
-    var mi_query = new String("SELECT * FROM productos WHERE 1 ");
+app.get('/productos',async (req, res) => {
+    
+    /* let productos = await Producto.where('precio','<','1000').get(connection);
+    console.log(productos); */
 
-    if(req.query.busqueda!=null){
-        mi_query = mi_query.concat(("AND nombre like '%"+req.query.busqueda+"%' ").toString());
-    }
-    if(req.query.usado!=null){
-        mi_query = mi_query.concat(("AND usado = "+req.query.usado+" ").toString());
-    }
-    if(req.query.orden!=null){
-        mi_query = mi_query.concat(("order by "+req.query.orden+";").toString());
-    }
+    /* let productoTest = new Producto(9,3,'Juego PS2 Resident Evil 4 Original',500,1,true);
+    productoTest.save(connection); */
 
-    connection.query(mi_query, function (error, results, field) {
-        if (error)
-            throw error;
-        return res.json(results);
-    });
-
+    /* console.log(await Producto.find(connection,1)); */
 });
 
 app.get('/usuarios/:id_usuario/fav', (req, res) => {
