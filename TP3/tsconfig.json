@@ -1,0 +1,13 @@
+{
+    "compilerOptions":{
+        "module": "CommonJS",
+        "target": "es5",
+        "lib": ["ES2018","DOM"]
+    },
+    "exclude": [
+        "node_modules"
+    ],
+    "files":[
+        "main.ts"
+    ]
+}
