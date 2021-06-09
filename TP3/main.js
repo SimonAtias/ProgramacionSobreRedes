@@ -1,33 +1,45 @@
 var cluster = require('cluster');
 var process = require('process');
+var bodyParser = require("body-parser");
 var mysql = require('mysql');
-var connection = mysql.createConnection({
+var pool = mysql.createPool({
+    connectionLimit: 10,
     host: "localhost",
     user: "root",
-    password: "1234",
-    database: "ecommerce"
+    password: "root",
+    database: "donaciones"
 });
 if (cluster.isWorker) {
     process.on('message', function (msg) {
-        if (msg == 'hola, negry') {
-            console.log(msg);
-            process.kill(process.pid);
-        }
-        else if (msg == 'hola, pa') {
-            console.log(msg);
-            process.kill(process.pid);
-        }
+        console.log(msg);
+        let reservas = 0;
+        pool.getConnection(function(err, con){
+            con.query("SELECT COUNT(*) FROM reservas WHERE usuario = " + msg.usuario + " AND funcion = " + msg.funcion, function(error, results, fields) {
+                if (error) throw error;
+                reservas = results[0].reservas;
+            } 
+        });
+        process.send(msg);
+        process.kill(process.pid);
     });
 }
 else {
     var express = require('express');
     var app = express();
     var port_1 = 3000;
-    app.get('/negry', function (req, res) {
+    app.use(bodyParser.urlencoded({ extended: false }));
+    app.use(bodyParser.json());
+    app.post('/reservar', function (req, res) {
         var worker = cluster.fork();
-        worker.send('hola, negry');
+        worker.send(req.body);
+        console.log(req.body.funcion);
+        console.log(req.body.usuario);
+        console.log(req.body.butacas_reservadas.get[0]);
+        worker.on('message', function (result) {
+            res.status(200).json(result);
+        });
     });
-    app.get('/pa', function (req, res) {
+    app.get('/funciones', function (req, res) {
         var worker = cluster.fork();
         worker.send('hola, pa');
     });
