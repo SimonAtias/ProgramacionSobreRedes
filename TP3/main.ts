@@ -35,26 +35,26 @@ if(cluster.isWorker){
         }else if(msg[0]=="reservar"){
             pool.getConnection(function(err, con){ 
                 con.beginTransaction(function(err){ 
-                    con.query('select vigente from funciones where id='+msg[1]), function (err, result, fields) {
-                        if(result=0){
+                    con.query('select vigente from funciones where id='+msg[1], function (err, result, fields) {
+                        if(result[0].vigente==0){
                             con.release();
                             process.send("La Funcion no esta disponible");
                             process.kill(process.pid); 
                         }
-                    }
-                    con.query('select id from reservas where usuario = 4 and funcion = 4'), function (err, result, fields) {
-                        if(result != null){
+                    });
+                    con.query('select id from reservas where usuario = '+ msg[2] +' and funcion = '+ msg[1] +'', function (err, result, fields) {
+                        if(result[0] != null){
                             con.release();
                             process.send("Ya tenes una reserva en esta funcion");
                             process.kill(process.pid); 
-                        }
-                    } 
-                    if(!(msg[3].length < 7)){
+                        }                                      
+                    });
+                    if(msg[3].length > 6){                           
                         con.release();
                         process.send("No podes reservar mas de 6 butacas");
                         process.kill(process.pid);
                     }
-                    con.query('insert into reservas values(null,'+ msg[2] +','+ msg[1] +', '+ msg[3] +' )'); 
+                    con.query(`insert into reservas values (null,"` +msg[2]+ `", "` +msg[1]+`",'` + JSON.stringify(msg[3]) +`')`);
                     con.query('select butacas_disponibles from funciones where id = '+ msg[1] +'',function(err, result, fields){
                         let butacas = JSON.parse(result[0].butacas_disponibles);
                         let butacasAReservar = msg[3];
@@ -65,23 +65,26 @@ if(cluster.isWorker){
                                 }
                             }
                         }
-                        con.query('update funciones set butacas_disponibles = '+JSON.stringify(butacas)+' where id='+msg[1]);
+                        con.query(`update funciones set butacas_disponibles = '`+JSON.stringify(butacas)+`' where id=`+msg[1]);
+                        con.commit(function(err){
+                            con.commit(function(err){
+                                if(err){return con.rollback(function(){
+                                    throw err;
+                                })}else {
+                                    con.release();
+                                    process.send("Reservado");
+                                    process.kill(process.pid);
+                                }
+                            })
+                        })
                     });
-                    con.commit(function(err){
-                        if(err){return con.rollback(function(){
-                            throw err;
-                        })}
-                    })
-                    con.release();
-                    process.send("Reservado");
-                    process.kill(process.pid);
-                }); 
+                });
             }); 
         }else if(msg[0]="cancelar"){
             pool.getConnection(function(err, con){ 
                 con.beginTransaction(function(err){ 
                     con.query('select id from reservas where funcion ='+msg[1]+' and usuario='+msg[2], function(err,result){
-                        if(!result){
+                        if(!result[0]){
                             con.release();
                             process.send("No existe esa reserva");
                             process.kill(process.pid); 
@@ -101,18 +104,20 @@ if(cluster.isWorker){
                         con.query('select butacas_disponibles from funciones where id='+msg[1], function(err, result){
                             let butacasDisponibles = JSON.parse(result[0].butacas_disponibles);
                             butacasDisponibles = butacasDisponibles.concat(butacasAgregar);
-                            con.query('update funciones set butacas_disponibles = ' + JSON.stringify(butacasDisponibles) + ' where id = ' + msg[1]);
+                            con.query(`update funciones set butacas_disponibles = '` + JSON.stringify(butacasDisponibles) + `' where id = ` + msg[1]);
+                            con.query('delete from reservas where funcion ='+msg[1]+' and usuario='+msg[2], function(err, result){    
+                                con.commit(function(err){
+                                    if(err){return con.rollback(function(){
+                                        throw err;
+                                    })}else {
+                                        con.release();
+                                        process.send("Reserva Cancelada");
+                                        process.kill(process.pid);
+                                    }
+                                })
+                            });
                         });
                     })
-                    con.query('delete from reservas where funcion ='+msg[1]+' and usuario='+msg[2]);
-                    con.commit(function(err){
-                        if(err){return con.rollback(function(){
-                            throw err;
-                        })}
-                    })
-                    con.release();
-                    process.send("Reserva Cancelada");
-                    process.kill(process.pid);
                 }); 
             });
         }
