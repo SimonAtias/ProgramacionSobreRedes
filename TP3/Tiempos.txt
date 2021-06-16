@@ -1,0 +1,22 @@
+Funciones clusterizado
+Tardo  1 371
+Tardo  0 391
+Tardo  4 395
+Tardo  3 404
+Tardo  2 494
+
+Reservar clusterizado
+Tardo  440
+Tardo  456
+Tardo  457
+Tardo  462
+Tardo  480
+
+Funciones no clusterizado
+Tardo  1 43
+Tardo  2 47
+Tardo  3 48
+Tardo  4 49
+Tardo  0 50
+
+Reservar no clusterizado

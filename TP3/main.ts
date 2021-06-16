@@ -66,7 +66,6 @@ if(cluster.isWorker){
                             }
                         }
                         con.query(`update funciones set butacas_disponibles = '`+JSON.stringify(butacas)+`' where id=`+msg[1]);
-                        con.commit(function(err){
                             con.commit(function(err){
                                 if(err){return con.rollback(function(){
                                     throw err;
@@ -76,7 +75,6 @@ if(cluster.isWorker){
                                     process.kill(process.pid);
                                 }
                             })
-                        })
                     });
                 });
             }); 
@@ -167,7 +165,3 @@ else{
     });
 
 }
-
-
-
-
