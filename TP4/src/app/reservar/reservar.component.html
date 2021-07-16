@@ -1,0 +1,54 @@
+
+<body>
+<!-- partial:index.partial.html -->
+<div class="movie-container">
+  <label>Seleccione sus asientos</label>
+</div>
+
+<ul class="showcase">
+  <li>
+    <div class="seat"></div>
+    <small>N/A</small>
+  </li>
+  <li>
+    <div class="seat selected"></div>
+    <small>Selected</small>
+  </li>
+  <li>
+    <div class="seat occupied"></div>
+    <small>Occupied</small>
+  </li>
+
+</ul>
+
+<div *ngIf="butacas_y_sala[0].sala==1" >
+  <app-asientos-triangular></app-asientos-triangular>
+</div>
+
+<div *ngIf="butacas_y_sala[0].sala==2" >
+  <app-asientos></app-asientos>
+</div>
+
+<button style="margin-top: 10px" (click)="reservar()"> Reservar </button>
+
+
+
+</body>
+
+<script>
+  // const container = document.querySelector('.container');
+  //
+  // const selectSeat = (seat) => {
+  //   seat.classList.toggle('selected');
+  // };
+  //
+  // container.addEventListener('click', (e) => {
+  //   e.preventDefault();
+  //   if (
+  //     e.target.classList.contains('seat') &&
+  //     !e.target.classList.contains('occupied')
+  //   ) {
+  //     selectSeat(e.target);
+  //   }
+  // });
+</script>
